@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Project Bright — Design System Preview</title>
+<style>
+  :root{
+    --bg:#F7F5F0; --card:#FFFFFF; --ink:#1A1D21; --muted:#6B7280;
+    --primary:#0E7A4F; --primary-dark:#0A5C3C; --accent:#F5A623;
+    --line:#E8E2D6; --success:#0E7A4F; --warn:#B45309; --danger:#C2410C;
+    --radius:16px;
+  }
+  *{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+  header{position:sticky;top:0;background:var(--ink);color:#fff;padding:16px 20px}
+  header h1{margin:0;font-size:18px} header p{margin:4px 0 0;color:#CBD5E1;font-size:13px}
+  .wrap{max-width:1080px;margin:0 auto;padding:24px 16px 64px}
+  .grid{display:grid;grid-template-columns:1fr;gap:16px}
+  @media(min-width:860px){.grid{grid-template-columns:1fr 1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+  .card h2{margin:0 0 4px;font-size:16px} .sub{color:var(--muted);font-size:13px;margin:0 0 16px}
+  .swatches{display:flex;gap:12px;flex-wrap:wrap}
+  .sw{width:120px}.sw i{display:block;height:64px;border-radius:12px;border:1px solid rgba(0,0,0,.08)}
+  .sw span{font-size:12px;color:var(--muted)}
+  .type-scale div{border-bottom:1px dashed var(--line);padding:8px 0}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:999px;padding:14px 20px;font-size:16px;font-weight:700;cursor:pointer}
+  .btn-primary{background:var(--primary);color:#fff} .btn-primary:active{background:var(--primary-dark)}
+  .btn-ghost{background:#fff;border:2px solid var(--ink)}
+  .voice{width:88px;height:88px;border-radius:50%;background:var(--accent);border:4px solid #fff;box-shadow:0 8px 24px rgba(0,0,0,.18);font-size:32px}
+  .phone{max-width:360px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:28px;overflow:hidden}
+  .phone-top{background:var(--primary);color:#fff;padding:18px}
+  .timeline{list-style:none;margin:0;padding:0}
+  .timeline li{display:flex;gap:12px;padding:10px 0;border-left:3px solid var(--line);padding-left:14px;margin-left:6px}
+  .timeline li.done{border-color:var(--primary)}
+  .pill{display:inline-block;font-size:12px;font-weight:700;background:#EAF6EF;color:var(--primary-dark);padding:4px 10px;border-radius:999px}
+  .row{display:flex;justify-content:space-between;padding:8px 0;font-size:14px}
+  .total{font-weight:800;font-size:18px;border-top:2px solid var(--ink);margin-top:8px;padding-top:12px}
+  small.hint{color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Project Bright — Design System v0.1</h1>
+  <p>Voice-first • Mobile-first • One order, one payment • High contrast for outdoor markets</p>
+</header>
+<div class="wrap">
+  <div class="grid">
+    <div class="card">
+      <h2>1. Colors</h2><p class="sub">Warm background, deep green trust, amber for voice attention</p>
+      <div class="swatches">
+        <div class="sw"><i style="background:#0E7A4F"></i><b>Primary</b><br><span>#0E7A4F</span></div>
+        <div class="sw"><i style="background:#F5A623"></i><b>Voice</b><br><span>#F5A623</span></div>
+        <div class="sw"><i style="background:#1A1D21"></i><b>Ink</b><br><span>#1A1D21</span></div>
+        <div class="sw"><i style="background:#F7F5F0"></i><b>Bg</b><br><span>#F7F5F0</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>2. Typography</h2><p class="sub">18px base, 44px+ touch targets, plain language</p>
+      <div class="type-scale">
+        <div style="font-size:28px;font-weight:800">Restock my shop — H1 28</div>
+        <div style="font-size:20px;font-weight:700">Order confirmed — H2 20</div>
+        <div style="font-size:16px">Body 16 — Rice 50kg, 2 bags, delivery tomorrow morning</div>
+        <div style="font-size:13px;color:var(--muted)">Caption 13 — Supplier: Melcom Distributor • 4.8★</div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>3. Voice + Actions</h2><p class="sub">Mic is primary CTA, always with text/browse fallback</p>
+      <div style="display:flex;gap:16px;align-items:center">
+        <button class="voice" aria-label="Tap to speak">🎙</button>
+        <div><button class="btn btn-primary">Review order • GH₵ 1,240</button><br><br><button class="btn btn-ghost">Type instead</button></div>
+      </div>
+      <p><small class="hint">Rule: always show transcript + confidence, require review before pay.</small></p>
+    </div>
+    <div class="card">
+      <h2>4. Order example (phone)</h2><p class="sub">One total, supplier breakdown visible</p>
+      <div class="phone">
+        <div class="phone-top"><span class="pill">PAID • MoMo</span><h3 style="margin:8px 0">Order #BR-1042</h3><small>2 suppliers → 1 delivery</small></div>
+        <div style="padding:16px">
+          <div class="row"><span>Rice 50kg ×2 — Melcom</span><b>GH₵ 980</b></div>
+          <div class="row"><span>Oil 5L ×4 — Unilever agent</span><b>GH₵ 180</b></div>
+          <div class="row"><span>Delivery (single fee)</span><b>GH₵ 80</b></div>
+          <div class="row total"><span>Total</span><span>GH₵ 1,240</span></div>
+          <ul class="timeline">
+            <li class="done">✅ Confirmed — availability checked</li>
+            <li class="done">📦 Preparing at suppliers</li>
+            <li>🛵 Picked up → consolidated</li>
+            <li>🏪 Delivery tomorrow 9-11am</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h2>Design rules for Bright</h2>
+    <p class="sub">Enforced from PRD §6 + AD-01/02/09/11</p>
+    <ul>
+      <li>Min 48px buttons, 16px+ text, high contrast for sunlight.</li>
+      <li>Voice first, never voice-only: transcript + edit + browse always visible.</li>
+      <li>One payment screen: itemized + delivery + total + MoMo prompt.</li>
+      <li>Landmark field on every address: e.g. “Behind Kejetia Market, blue kiosk”.</li>
+      <li>WhatsApp/SMS mirror only key states to save cost.</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>

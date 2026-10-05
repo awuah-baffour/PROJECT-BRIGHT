@@ -1,0 +1,119 @@
+// AD-05 Postgres source of truth. AD-15 append-only events + audit.
+// Run: npx prisma migrate dev (needs DATABASE_URL)
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Retailer {
+  id        String     @id @default(cuid())
+  phone     String     @unique
+  shopName  String
+  createdAt DateTime   @default(now())
+  staff     Staff[]
+  locations Location[]
+  orders    Order[]
+}
+
+model Staff {
+  id         String   @id @default(cuid())
+  retailerId String
+  retailer   Retailer @relation(fields: [retailerId], references: [id])
+  phone      String
+  role       String   // owner | manager | staff
+  dailyCap   Int?
+  perOrderCap Int?
+}
+
+model Location {
+  id            String   @id @default(cuid())
+  retailerId    String
+  retailer      Retailer @relation(fields: [retailerId], references: [id])
+  gpsLat        Float?
+  gpsLng        Float?
+  address       String
+  landmark      String
+  deliveryNotes String?
+  orders        Order[]
+}
+
+model Supplier {
+  id        String      @id @default(cuid())
+  name      String
+  approved  Boolean     @default(false)
+  rating    Float       @default(0)
+  slices    OrderSlice[]
+}
+
+model Product {
+  id         String  @id @default(cuid())
+  supplierId String?
+  name       String
+  variant    String?
+  unit       String
+  price      Int     // minor units (pesewas)
+  inStock    Int     @default(0)
+}
+
+model Order {
+  id                 String       @id @default(cuid())
+  retailerId         String
+  retailer           Retailer     @relation(fields: [retailerId], references: [id])
+  deliveryLocationId String
+  location           Location     @relation(fields: [deliveryLocationId], references: [id])
+  status             String       @default("draft")
+  total              Int          @default(0)
+  slices             OrderSlice[]
+  payments           Payment[]
+}
+
+model OrderSlice {
+  id         String    @id @default(cuid())
+  orderId    String
+  order      Order     @relation(fields: [orderId], references: [id])
+  supplierId String
+  supplier   Supplier  @relation(fields: [supplierId], references: [id])
+  status     String    @default("assigned")
+  respondBy  DateTime?
+  items      SliceItem[]
+}
+
+model SliceItem {
+  id      String     @id @default(cuid())
+  sliceId String
+  slice   OrderSlice @relation(fields: [sliceId], references: [id])
+  name    String
+  qty     Int
+  price   Int
+}
+
+model Payment {
+  id            String         @id @default(cuid())
+  orderId       String
+  order         Order          @relation(fields: [orderId], references: [id])
+  provider      String
+  reference     String         @unique
+  amount        Int
+  status        String         @default("pending")
+  ledgerEntries LedgerEntry[]
+}
+
+model LedgerEntry {
+  id        String  @id @default(cuid())
+  paymentId String
+  payment   Payment @relation(fields: [paymentId], references: [id])
+  party     String  // supplier:<id> | transport:<id> | platform
+  amount    Int
+}
+
+model Event {
+  id        String   @id @default(cuid())
+  orderId   String?
+  type      String
+  payload   Json
+  createdAt DateTime @default(now())
+}
