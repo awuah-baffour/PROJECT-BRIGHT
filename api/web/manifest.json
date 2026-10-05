@@ -1,0 +1,11 @@
+{
+  "name": "Project Bright — Restock",
+  "short_name": "Bright",
+  "description": "Tell us what your shop needs. We find it, coordinate it and deliver it.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F7F5F0",
+  "theme_color": "#0E7A4F",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

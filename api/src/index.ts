@@ -1,4 +1,5 @@
 import express from "express";
+import path from "node:path";
 import { prisma } from "./db.js";
 import { healthRouter } from "./modules/health.js";
 import { identityRouter } from "./modules/identity.js";
@@ -25,6 +26,9 @@ try {
 
 const app = express();
 app.use(express.json({ limit: "1mb" }));
+
+// Shopkeeper app (static PWA, same origin so no CORS needed).
+app.use(express.static(path.join(process.cwd(), "web")));
 
 app.use("/v1/health", healthRouter);
 app.use("/v1/identity", identityRouter);

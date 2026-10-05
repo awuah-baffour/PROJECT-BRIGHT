@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0E7A4F" />
+<title>Project Bright — Restock</title>
+<link rel="manifest" href="/manifest.json" />
+<link rel="stylesheet" href="/styles.css" />
+<link rel="icon" href="/icon.svg" type="image/svg+xml" />
+</head>
+<body>
+<header class="topbar">
+  <div>
+    <h1>Bright</h1>
+    <p id="conn" class="conn">connecting…</p>
+  </div>
+  <button id="settingsBtn" class="iconbtn" aria-label="Settings">⚙</button>
+</header>
+
+<main id="app">
+  <!-- ORDER -->
+  <section id="screen-order" class="screen">
+    <div class="card">
+      <h2>What does your shop need?</h2>
+      <p class="sub">Speak, type, or pick. One order, one payment, delivered.</p>
+      <div class="voicerow">
+        <button id="micBtn" class="voice" aria-label="Tap and speak">🎙</button>
+        <div class="voicehint">
+          <b id="micLabel">Tap and speak</b>
+          <small id="micHint">e.g. “2 bags rice and 4 bottles oil”</small>
+        </div>
+      </div>
+      <textarea id="requestBox" rows="3" placeholder="Type here: 2 bags rice, 4 oil, delivery tomorrow"></textarea>
+      <div class="rowbtns">
+        <button id="parseBtn" class="btn btn-ghost">Add to list</button>
+        <button id="browseBtn" class="btn btn-ghost">Browse products</button>
+      </div>
+      <div id="productPicker" class="picker" hidden></div>
+    </div>
+
+    <div class="card">
+      <h2>Your list</h2>
+      <div id="items"></div>
+      <label class="field">Delivery location ID
+        <input id="locationInput" value="loc_1" />
+      </label>
+      <label class="field">Delivery window (optional)
+        <input id="windowInput" placeholder="tomorrow 9-11am" />
+      </label>
+      <button id="quoteBtn" class="btn btn-primary big">Check availability &amp; price</button>
+      <p><small class="hint">We check what suppliers have <b>before</b> you pay.</small></p>
+    </div>
+
+    <div class="card">
+      <h2>Due for restock?</h2>
+      <button id="replenishBtn" class="btn btn-ghost">Show suggestions</button>
+      <div id="suggestions"></div>
+    </div>
+  </section>
+
+  <!-- REVIEW -->
+  <section id="screen-review" class="screen" hidden>
+    <div class="card">
+      <h2>Review your order</h2>
+      <div id="quoteLines"></div>
+      <div id="quoteTotals"></div>
+      <div id="quoteFlags"></div>
+      <div class="rowbtns">
+        <button id="backBtn" class="btn btn-ghost">Edit list</button>
+        <button id="payBtn" class="btn btn-primary big">Pay once</button>
+      </div>
+      <p><small class="hint">Pay with MoMo, card, or bank transfer. One payment covers all suppliers.</small></p>
+    </div>
+  </section>
+
+  <!-- STATUS -->
+  <section id="screen-status" class="screen" hidden>
+    <div class="card">
+      <h2 id="statusTitle">Order status</h2>
+      <div id="statusBody"></div>
+      <div class="rowbtns">
+        <button id="refreshBtn" class="btn btn-ghost">Refresh</button>
+        <button id="newOrderBtn" class="btn btn-ghost">New order</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Report a problem</h2>
+      <div class="rowbtns">
+        <select id="issueType">
+          <option value="missing">Missing item</option>
+          <option value="damaged">Damaged</option>
+          <option value="incorrect">Wrong item</option>
+          <option value="other">Other</option>
+        </select>
+        <input id="issueDetail" placeholder="What happened?" />
+        <button id="issueBtn" class="btn btn-ghost">Send</button>
+      </div>
+      <div id="issues"></div>
+    </div>
+    <div class="card">
+      <h2>Save effort</h2>
+      <div class="rowbtns">
+        <button id="reorderBtn" class="btn btn-ghost">Buy again</button>
+        <button id="recurringBtn" class="btn btn-ghost">Repeat weekly</button>
+        <button id="trackBtn" class="btn btn-ghost">Live tracking</button>
+      </div>
+      <div id="extras"></div>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="screen-settings" class="screen" hidden>
+    <div class="card">
+      <h2>Settings</h2>
+      <label class="field">Server address
+        <input id="baseInput" placeholder="(same as this page)" />
+      </label>
+      <p><small class="hint">Leave empty when using the app from the server. For testing on your network, enter e.g. http://192.168.1.20:3000</small></p>
+      <button id="saveSettingsBtn" class="btn btn-primary">Save</button>
+    </div>
+  </section>
+</main>
+
+<nav class="tabbar">
+  <button data-tab="screen-order" class="tab active">🧺 Order</button>
+  <button data-tab="screen-review" class="tab">🧾 Review</button>
+  <button data-tab="screen-status" class="tab">📦 Status</button>
+</nav>
+
+<script src="/app.js"></script>
+</body>
+</html>
