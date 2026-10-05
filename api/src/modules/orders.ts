@@ -5,6 +5,7 @@ import { priceQuote } from "../core/pricing.js";
 import { getOrder, makeId, saveOrder } from "../store/orders.js";
 import { logEvent, timeline } from "../store/events.js";
 import { issuesForOrder } from "../store/issues.js";
+import { recordAssign } from "../store/supplierStats.js";
 
 // AD-06: draft -> quoted -> pending_payment -> paid -> sourcing -> preparing
 // -> ready -> picked_up -> consolidated -> dispatched -> delivered
@@ -57,6 +58,7 @@ ordersRouter.post("/quote", (req, res) => {
     createdAt: new Date().toISOString(),
   });
   logEvent(orderId, "order.quoted", { total: quote.total, suppliers: quote.slices.length });
+  for (const s of quote.slices) recordAssign(s.supplierId);
   res.json({ orderId, status: "quoted" satisfies OrderStatus, deliveryLocationId, window: window ?? null, ...quote });
 });
 
@@ -118,6 +120,7 @@ ordersRouter.post("/:id/reorder", (req, res) => {
     createdAt: new Date().toISOString(),
   });
   logEvent(orderId, "order.quoted", { reorderOf: prev.id, total: quote.total });
+  for (const s of quote.slices) recordAssign(s.supplierId);
   res.json({ orderId, reorderOf: prev.id, status: "quoted" satisfies OrderStatus, ...quote });
 });
 

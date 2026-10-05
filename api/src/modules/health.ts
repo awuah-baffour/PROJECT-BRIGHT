@@ -1,5 +1,5 @@
 import { Router } from "express";
 export const healthRouter = Router();
 healthRouter.get("/", (_req, res) => {
-  res.json({ ok: true, service: "project-bright-api", phase: "1b-tracking-support-reorder" });
+  res.json({ ok: true, service: "project-bright-api", phase: "2-repeat-quality" });
 });

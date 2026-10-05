@@ -1,4 +1,5 @@
 import { products, suppliers } from "../data/seed.js";
+import { supplierScore } from "../store/supplierStats.js";
 
 // PRD 9.3: compare approved suppliers, recommend best, retailer can override.
 // PRD 9.4: partial fill + alternatives, no silent material substitution.
@@ -59,10 +60,11 @@ export function buildQuote(requested: RequestedItem[]): Quote {
         const aFull = a.inStock >= r.qty ? 0 : 1;
         const bFull = b.inStock >= r.qty ? 0 : 1;
         if (aFull !== bFull) return aFull - bFull;
-        if (a.price !== b.price) return a.price - b.price;
-        const ar = suppliers.find((s) => s.id === a.supplierId)?.rating ?? 0;
-        const br = suppliers.find((s) => s.id === b.supplierId)?.rating ?? 0;
-        return br - ar;
+        // Phase 2: value score blends live supplier quality with price.
+        // Higher score wins; price breaks near-ties (500 pts ~ GH₵5 sensitivity).
+        const av = supplierScore(a.supplierId) * 1000 - a.price / 50;
+        const bv = supplierScore(b.supplierId) * 1000 - b.price / 50;
+        return bv - av;
       });
 
     if (candidates.length === 0) {
