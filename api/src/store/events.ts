@@ -1,3 +1,5 @@
+import { prisma } from "../db.js";
+
 export interface OrderEvent {
   orderId: string;
   type: string;
@@ -5,14 +7,17 @@ export interface OrderEvent {
   detail?: unknown;
 }
 
-const events: OrderEvent[] = [];
-
-export function logEvent(orderId: string, type: string, detail?: unknown): OrderEvent {
-  const e = { orderId, type, at: new Date().toISOString(), detail };
-  events.push(e);
-  return e;
+export async function logEvent(orderId: string, type: string, detail?: unknown): Promise<OrderEvent> {
+  const row = await prisma.event.create({ data: { orderId, type, payload: JSON.stringify(detail ?? null) } });
+  return { orderId, type, at: row.createdAt.toISOString(), detail };
 }
 
-export function timeline(orderId: string): OrderEvent[] {
-  return events.filter((e) => e.orderId === orderId);
+export async function timeline(orderId: string): Promise<OrderEvent[]> {
+  const rows = await prisma.event.findMany({ where: { orderId }, orderBy: { createdAt: "asc" } });
+  return rows.map((r) => ({
+    orderId: r.orderId ?? "",
+    type: r.type,
+    at: r.createdAt.toISOString(),
+    detail: JSON.parse(r.payload) as unknown,
+  }));
 }

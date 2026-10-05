@@ -1,5 +1,6 @@
-// Phase 5: opt-in live tracking per order. Positions only recorded when the
-// retailer enables tracking for that order (cost + privacy guardrail).
+import { prisma } from "../db.js";
+
+// Opt-in live tracking per order. Positions only recorded when enabled.
 export interface Ping {
   lat: number;
   lng: number;
@@ -7,20 +8,27 @@ export interface Ping {
   stage?: string;
 }
 
-const enabled = new Set<string>();
-const pings = new Map<string, Ping[]>();
+export async function enableTracking(orderId: string): Promise<void> {
+  await prisma.tracking.upsert({
+    where: { orderId },
+    create: { orderId, pings: "[]" },
+    update: {},
+  });
+}
 
-export function enableTracking(orderId: string): void {
-  enabled.add(orderId);
+export async function isTracking(orderId: string): Promise<boolean> {
+  const row = await prisma.tracking.findUnique({ where: { orderId } });
+  return row !== null;
 }
-export function isTracking(orderId: string): boolean {
-  return enabled.has(orderId);
+
+export async function addPing(orderId: string, p: Ping): Promise<void> {
+  const row = await prisma.tracking.findUnique({ where: { orderId } });
+  const pings: Ping[] = row ? (JSON.parse(row.pings) as Ping[]) : [];
+  pings.push(p);
+  await prisma.tracking.update({ where: { orderId }, data: { pings: JSON.stringify(pings) } });
 }
-export function addPing(orderId: string, p: Ping): void {
-  const list = pings.get(orderId) ?? [];
-  list.push(p);
-  pings.set(orderId, list);
-}
-export function getPings(orderId: string): Ping[] {
-  return pings.get(orderId) ?? [];
+
+export async function getPings(orderId: string): Promise<Ping[]> {
+  const row = await prisma.tracking.findUnique({ where: { orderId } });
+  return row ? (JSON.parse(row.pings) as Ping[]) : [];
 }

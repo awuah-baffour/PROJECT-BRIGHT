@@ -1,7 +1,10 @@
+import { prisma } from "../db.js";
 import type { OrderStatus } from "../core/orderMachine.js";
 import type { PricedQuote } from "../core/pricing.js";
 
-// In-memory orders for Phase 1 (Postgres in Phase 0 schema when DATABASE_URL set).
+// Orders live in OrderDoc so they survive restarts. The document holds
+// everything the API needs; normalized Order/OrderSlice tables are populated
+// later when the payments ledger goes live.
 export interface SliceState {
   supplierId: string;
   supplierName: string;
@@ -23,14 +26,27 @@ export interface OrderRecord {
   createdAt: string;
 }
 
-const orders = new Map<string, OrderRecord>();
+export async function saveOrder(o: OrderRecord): Promise<void> {
+  const { id, status, quote, ...rest } = o;
+  await prisma.orderDoc.upsert({
+    where: { id },
+    create: { id, status, total: quote.total, data: JSON.stringify({ ...rest, quote }) },
+    update: { status, total: quote.total, data: JSON.stringify({ ...rest, quote }) },
+  });
+}
 
-export function saveOrder(o: OrderRecord): void {
-  orders.set(o.id, o);
+export async function getOrder(id: string): Promise<OrderRecord | undefined> {
+  const row = await prisma.orderDoc.findUnique({ where: { id } });
+  if (!row) return undefined;
+  const data = JSON.parse(row.data as string);
+  return { id: row.id, status: row.status as OrderStatus, ...data };
 }
-export function getOrder(id: string): OrderRecord | undefined {
-  return orders.get(id);
+
+export async function orderCounts(): Promise<{ orders: number; gmv: number }> {
+  const agg = await prisma.orderDoc.aggregate({ _count: true, _sum: { total: true } });
+  return { orders: agg._count, gmv: agg._sum.total ?? 0 };
 }
+
 export function makeId(prefix: string): string {
   return `${prefix}_${Math.random().toString(36).slice(2, 9)}`;
 }

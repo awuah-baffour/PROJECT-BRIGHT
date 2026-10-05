@@ -1,11 +1,22 @@
 // AD-05 Postgres source of truth. AD-15 append-only events + audit.
-// Run: npx prisma migrate dev (needs DATABASE_URL)
+//
+// Local dev uses SQLite (zero setup): DATABASE_URL="file:./dev.db".
+// Production uses Postgres: change datasource provider to "postgresql",
+// set DATABASE_URL to the Postgres connection string, and run
+// `npx prisma migrate dev`. All access goes through Prisma, so no
+// application code changes are needed for the switch.
+//
+// Table strategy:
+// - Normalized domain models (Retailer..LedgerEntry) are populated when the
+//   payments ledger and supplier onboarding go live (production phase).
+// - Pilot tables (OrderDoc..Tracking) back the API today and survive
+//   restarts via dev.db.
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -114,6 +125,85 @@ model Event {
   id        String   @id @default(cuid())
   orderId   String?
   type      String
-  payload   Json
+  payload   String   // JSON-encoded (SQLite has no Json type; Postgres does)
   createdAt DateTime @default(now())
+
+  @@index([orderId])
+}
+
+// ---- Pilot tables (live today) ----
+
+model OrderDoc {
+  id        String   @id
+  status    String
+  total     Int      @default(0)
+  data      String   // JSON-encoded: deliveryLocationId(s), window, quote, slices, createdAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Issue {
+  id         String   @id
+  orderId    String
+  type       String
+  detail     String?
+  status     String   @default("open")
+  resolution String?
+  createdAt  DateTime @default(now())
+
+  @@index([orderId])
+}
+
+model Purchase {
+  id          String   @id
+  locationId  String
+  productName String
+  qty         Int
+  createdAt   DateTime @default(now())
+
+  @@index([locationId])
+}
+
+model Preference {
+  id                  String  @id
+  locationId          String
+  productName         String
+  preferredSupplierId String?
+  autoApprove         Boolean @default(false)
+
+  @@unique([locationId, productName])
+}
+
+model Recurring {
+  id                 String   @id
+  sourceOrderId      String
+  items              String   // JSON-encoded [{name, qty}]
+  deliveryLocationId String
+  frequency          String
+  nextRun            DateTime
+  paused             Boolean  @default(false)
+  createdAt          DateTime @default(now())
+}
+
+model Outbound {
+  id             String    @id
+  sourceChannel  String
+  serviceType    String
+  pickupNote     String
+  customerName   String
+  customerPhone  String
+  dropoffAddress String
+  landmark       String
+  packageNote    String    @default("")
+  codAmount      Int       @default(0)
+  status         String    @default("created")
+  rider          String?
+  proofRecipient String?
+  proofAt        DateTime?
+  createdAt      DateTime  @default(now())
+}
+
+model Tracking {
+  orderId String @id
+  pings   String   // JSON-encoded Ping[]
 }

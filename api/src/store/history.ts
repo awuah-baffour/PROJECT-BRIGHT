@@ -1,22 +1,29 @@
-// Phase 4: purchase history per delivery location (retailer proxy until
-// identity is wired to orders). In-memory; Postgres events table later.
+import { prisma } from "../db.js";
+
+// Purchase history per delivery location (retailer proxy until identity is
+// wired to orders). Survives restarts via the Purchase table.
 export interface Purchase {
   productName: string;
   qty: number;
   at: string;
 }
 
-const history = new Map<string, Purchase[]>();
-
-export function recordPurchase(locationId: string, lines: { requestedName: string; qtyFulfilled: number }[]): void {
-  const list = history.get(locationId) ?? [];
-  const now = new Date().toISOString();
-  for (const l of lines) {
-    if (l.qtyFulfilled > 0) list.push({ productName: l.requestedName, qty: l.qtyFulfilled, at: now });
-  }
-  history.set(locationId, list);
+export async function recordPurchase(
+  locationId: string,
+  lines: { requestedName: string; qtyFulfilled: number }[],
+): Promise<void> {
+  const rows = lines
+    .filter((l) => l.qtyFulfilled > 0)
+    .map((l) => ({
+      id: `pur_${Math.random().toString(36).slice(2, 9)}${Date.now().toString(36)}`,
+      locationId,
+      productName: l.requestedName,
+      qty: l.qtyFulfilled,
+    }));
+  if (rows.length > 0) await prisma.purchase.createMany({ data: rows });
 }
 
-export function getHistory(locationId: string): Purchase[] {
-  return history.get(locationId) ?? [];
+export async function getHistory(locationId: string): Promise<Purchase[]> {
+  const rows = await prisma.purchase.findMany({ where: { locationId }, orderBy: { createdAt: "asc" } });
+  return rows.map((r) => ({ productName: r.productName, qty: r.qty, at: r.createdAt.toISOString() }));
 }

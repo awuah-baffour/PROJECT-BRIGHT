@@ -1,6 +1,6 @@
-import { makeId } from "./orders.js";
+import { prisma } from "../db.js";
 
-// Phase 2: richer recurring orders - schedule, pause, skip, run-now.
+// Richer recurring orders: schedule, pause, skip, run-now.
 export interface Recurring {
   id: string;
   sourceOrderId: string;
@@ -12,17 +12,54 @@ export interface Recurring {
   createdAt: string;
 }
 
-const schedules = new Map<string, Recurring>();
+function toRecurring(row: {
+  id: string;
+  sourceOrderId: string;
+  items: string;
+  deliveryLocationId: string;
+  frequency: string;
+  nextRun: Date;
+  paused: boolean;
+  createdAt: Date;
+}): Recurring {
+  return {
+    id: row.id,
+    sourceOrderId: row.sourceOrderId,
+    items: JSON.parse(row.items) as { name: string; qty: number }[],
+    deliveryLocationId: row.deliveryLocationId,
+    frequency: row.frequency as "weekly" | "biweekly",
+    nextRun: row.nextRun.toISOString(),
+    paused: row.paused,
+    createdAt: row.createdAt.toISOString(),
+  };
+}
 
-export function saveRecurring(r: Recurring): void {
-  schedules.set(r.id, r);
+export async function saveRecurring(r: Recurring): Promise<void> {
+  await prisma.recurring.upsert({
+    where: { id: r.id },
+    create: {
+      id: r.id,
+      sourceOrderId: r.sourceOrderId,
+      items: JSON.stringify(r.items),
+      deliveryLocationId: r.deliveryLocationId,
+      frequency: r.frequency,
+      nextRun: new Date(r.nextRun),
+      paused: r.paused,
+    },
+    update: { nextRun: new Date(r.nextRun), paused: r.paused },
+  });
 }
-export function getRecurring(id: string): Recurring | undefined {
-  return schedules.get(id);
+
+export async function getRecurring(id: string): Promise<Recurring | undefined> {
+  const row = await prisma.recurring.findUnique({ where: { id } });
+  return row ? toRecurring(row) : undefined;
 }
-export function listRecurring(): Recurring[] {
-  return [...schedules.values()];
+
+export async function listRecurring(): Promise<Recurring[]> {
+  const rows = await prisma.recurring.findMany({ orderBy: { createdAt: "asc" } });
+  return rows.map(toRecurring);
 }
+
 export function newRecurringId(): string {
-  return makeId("rec");
+  return `rec_${Math.random().toString(36).slice(2, 9)}`;
 }

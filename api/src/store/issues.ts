@@ -1,3 +1,5 @@
+import { prisma } from "../db.js";
+
 export interface Issue {
   id: string;
   orderId: string;
@@ -8,14 +10,44 @@ export interface Issue {
   createdAt: string;
 }
 
-const issues = new Map<string, Issue>();
+function toIssue(row: {
+  id: string;
+  orderId: string;
+  type: string;
+  detail: string | null;
+  status: string;
+  resolution: string | null;
+  createdAt: Date;
+}): Issue {
+  return {
+    id: row.id,
+    orderId: row.orderId,
+    type: row.type,
+    detail: row.detail,
+    status: row.status as Issue["status"],
+    resolution: row.resolution,
+    createdAt: row.createdAt.toISOString(),
+  };
+}
 
-export function saveIssue(i: Issue): void {
-  issues.set(i.id, i);
+export async function saveIssue(i: Issue): Promise<void> {
+  await prisma.issue.upsert({
+    where: { id: i.id },
+    create: { id: i.id, orderId: i.orderId, type: i.type, detail: i.detail, status: i.status, resolution: i.resolution },
+    update: { status: i.status, resolution: i.resolution },
+  });
 }
-export function getIssue(id: string): Issue | undefined {
-  return issues.get(id);
+
+export async function getIssue(id: string): Promise<Issue | undefined> {
+  const row = await prisma.issue.findUnique({ where: { id } });
+  return row ? toIssue(row) : undefined;
 }
-export function issuesForOrder(orderId: string): Issue[] {
-  return [...issues.values()].filter((i) => i.orderId === orderId);
+
+export async function issuesForOrder(orderId: string): Promise<Issue[]> {
+  const rows = await prisma.issue.findMany({ where: { orderId }, orderBy: { createdAt: "asc" } });
+  return rows.map(toIssue);
+}
+
+export function newIssueId(): string {
+  return `iss_${Math.random().toString(36).slice(2, 9)}`;
 }
