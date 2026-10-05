@@ -5,8 +5,9 @@ import type { PricedQuote } from "../core/pricing.js";
 export interface SliceState {
   supplierId: string;
   supplierName: string;
-  status: "assigned" | "confirmed" | "rejected" | "expired" | "resourced";
+  status: "assigned" | "confirmed" | "rejected" | "expired" | "resourced" | "dispatched" | "delivered";
   respondBy: string;
+  transporterId?: string;
   items: PricedQuote["lines"];
   sliceTotal: number;
 }
@@ -15,6 +16,7 @@ export interface OrderRecord {
   id: string;
   status: OrderStatus;
   deliveryLocationId: string;
+  deliveryLocations: string[]; // Phase 5: one or more drops
   window: string | null;
   quote: PricedQuote;
   slices: SliceState[];

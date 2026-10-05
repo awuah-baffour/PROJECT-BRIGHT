@@ -3,6 +3,7 @@ import { findAlternatives } from "../core/sourcing.js";
 import { getOrder, saveOrder } from "../store/orders.js";
 import { logEvent } from "../store/events.js";
 import { recordConfirm, recordReject } from "../store/supplierStats.js";
+import { transporters } from "../data/fleet.js";
 
 // AD-07: respond_by + delayed job + auto re-source. AD-11: one location per order.
 // PRD 10: material change (product/price/qty/time) needs retailer approval.
@@ -66,4 +67,26 @@ logisticsRouter.post("/orders/:orderId/slices/:supplierId/reject", (req, res) =>
       ? "Replacement changes price - retailer approval required (PRD 10)"
       : "Replacement equivalent - fulfillment continues",
   });
+});
+
+// Phase 5: dispatch a confirmed slice with own or 3PL capacity (PRD 9.8).
+logisticsRouter.post("/orders/:orderId/slices/:supplierId/dispatch", (req, res) => {
+  const o = getOrder(req.params.orderId);
+  if (!o) return res.status(404).json({ error: "order not found" });
+  const slice = o.slices.find((s) => s.supplierId === req.params.supplierId);
+  if (!slice) return res.status(404).json({ error: "slice not found" });
+  if (slice.status !== "confirmed") return res.status(400).json({ error: `slice is ${slice.status}, must be confirmed` });
+  const t = transporters.find((x) => x.id === req.body?.transporterId);
+  if (!t) return res.status(404).json({ error: "transporter not found" });
+  if (!t.active) return res.status(400).json({ error: "transporter suspended" });
+  slice.status = "dispatched";
+  slice.transporterId = t.id;
+  if (o.status === "sourcing") o.status = "dispatched";
+  saveOrder(o);
+  logEvent(o.id, "slice.dispatched", { supplierId: slice.supplierId, transporterId: t.id, kind: t.kind });
+  res.json({ ok: true, orderId: o.id, status: o.status, slice });
+});
+
+logisticsRouter.get("/transporters", (_req, res) => {
+  res.json({ transporters });
 });

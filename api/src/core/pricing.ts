@@ -13,11 +13,13 @@ export interface PricedQuote extends Quote {
   supplierAllocation: { supplierId: string; supplierName: string; amount: number }[];
 }
 
-export function priceQuote(q: Quote): PricedQuote {
+export function priceQuote(q: Quote, opts?: { drops?: number }): PricedQuote {
   const supplierCount = q.slices.length;
-  const deliveryFee = supplierCount === 0 ? 0 : DELIVERY_BASE;
+  const drops = opts?.drops ?? 1;
+  // Phase 5: one base fee per drop; internal cost still tracks pickup complexity.
+  const deliveryFee = supplierCount === 0 ? 0 : DELIVERY_BASE * drops;
   const internalLogisticsCost =
-    supplierCount === 0 ? 0 : DELIVERY_BASE + Math.max(0, supplierCount - 1) * DELIVERY_PER_EXTRA_SUPPLIER;
+    supplierCount === 0 ? 0 : (DELIVERY_BASE + Math.max(0, supplierCount - 1) * DELIVERY_PER_EXTRA_SUPPLIER) * drops;
   const serviceFee = 0;
   const total = q.subtotal + deliveryFee + serviceFee;
   const supplierAllocation = q.slices.map((s) => ({ supplierId: s.supplierId, supplierName: s.supplierName, amount: s.sliceTotal }));

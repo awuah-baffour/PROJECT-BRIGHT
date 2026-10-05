@@ -20,6 +20,7 @@ export interface QuoteLine {
   qtyFulfilled: number;
   lineTotal: number;
   partial: boolean;
+  locationId?: string; // Phase 5: set when quoted across multiple drops
 }
 
 export interface Slice {

@@ -72,6 +72,7 @@ recurringRouter.post("/:id/run-now", (req, res) => {
     id: orderId,
     status: "quoted",
     deliveryLocationId: r.deliveryLocationId,
+    deliveryLocations: [r.deliveryLocationId],
     window: null,
     quote,
     slices: quote.slices.map((s) => ({
