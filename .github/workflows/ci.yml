@@ -5,6 +5,8 @@ on:
 jobs:
   typecheck:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: file:./dev.db
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -12,3 +14,6 @@ jobs:
           node-version: 22
       - run: npm --prefix api ci
       - run: npm --prefix api run typecheck
+      - run: npm --prefix api run verify
+      - run: npm --prefix api exec prisma migrate deploy
+      - run: npm --prefix api run smoke && npm --prefix api run smoke
