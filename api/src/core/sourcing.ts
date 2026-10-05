@@ -47,7 +47,10 @@ function norm(s: string): string {
   return s.trim().toLowerCase();
 }
 
-export function buildQuote(requested: RequestedItem[]): Quote {
+export function buildQuote(
+  requested: RequestedItem[],
+  opts?: { preferredSupplierFor?: (productName: string) => string | null },
+): Quote {
   const lines: QuoteLine[] = [];
   const unavailable: Unavailable[] = [];
 
@@ -60,6 +63,13 @@ export function buildQuote(requested: RequestedItem[]): Quote {
         const aFull = a.inStock >= r.qty ? 0 : 1;
         const bFull = b.inStock >= r.qty ? 0 : 1;
         if (aFull !== bFull) return aFull - bFull;
+        // Phase 4: explicit opt-in preference wins when in stock.
+        const preferred = opts?.preferredSupplierFor?.(r.name) ?? null;
+        if (preferred) {
+          const aPref = a.supplierId === preferred ? 0 : 1;
+          const bPref = b.supplierId === preferred ? 0 : 1;
+          if (aPref !== bPref) return aPref - bPref;
+        }
         // Phase 2: value score blends live supplier quality with price.
         // Higher score wins; price breaks near-ties (500 pts ~ GH₵5 sensitivity).
         const av = supplierScore(a.supplierId) * 1000 - a.price / 50;

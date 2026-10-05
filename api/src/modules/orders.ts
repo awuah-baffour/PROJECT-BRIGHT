@@ -6,6 +6,8 @@ import { getOrder, makeId, saveOrder } from "../store/orders.js";
 import { logEvent, timeline } from "../store/events.js";
 import { issuesForOrder } from "../store/issues.js";
 import { recordAssign } from "../store/supplierStats.js";
+import { recordPurchase } from "../store/history.js";
+import { preferredSupplierFor } from "../store/preferences.js";
 
 // AD-06: draft -> quoted -> pending_payment -> paid -> sourcing -> preparing
 // -> ready -> picked_up -> consolidated -> dispatched -> delivered
@@ -37,7 +39,11 @@ ordersRouter.post("/quote", (req, res) => {
       return res.status(400).json({ error: "each item needs {name, qty>0}" });
     }
   }
-  const quote = priceQuote(buildQuote(items));
+  const quote = priceQuote(
+    buildQuote(items, {
+      preferredSupplierFor: (name) => preferredSupplierFor(deliveryLocationId, name),
+    }),
+  );
   const slaMinutes = Number(process.env.SUPPLIER_SLA_MINUTES ?? 20);
   const respondBy = new Date(Date.now() + slaMinutes * 60_000).toISOString();
   const orderId = makeId("ord");
@@ -76,6 +82,7 @@ ordersRouter.post("/:id/pay", (req, res) => {
   if (o.quote.lines.length === 0) return res.status(400).json({ error: "nothing available to pay for" });
   o.status = "paid";
   saveOrder(o);
+  recordPurchase(o.deliveryLocationId, o.quote.lines);
   logEvent(o.id, "order.paid", { total: o.quote.total });
   res.json({ ok: true, orderId: o.id, status: o.status, total: o.quote.total, slices: o.slices });
 });
@@ -99,7 +106,11 @@ ordersRouter.post("/:id/reorder", (req, res) => {
   const prev = getOrder(req.params.id);
   if (!prev) return res.status(404).json({ error: "order not found" });
   const items = prev.quote.lines.map((l) => ({ name: l.requestedName, qty: l.qtyRequested }));
-  const quote = priceQuote(buildQuote(items));
+  const quote = priceQuote(
+    buildQuote(items, {
+      preferredSupplierFor: (name) => preferredSupplierFor(prev.deliveryLocationId, name),
+    }),
+  );
   const slaMinutes = Number(process.env.SUPPLIER_SLA_MINUTES ?? 20);
   const respondBy = new Date(Date.now() + slaMinutes * 60_000).toISOString();
   const orderId = makeId("ord");
