@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { findAlternatives } from "../core/sourcing.js";
 import { getOrder, saveOrder } from "../store/orders.js";
+import { logEvent } from "../store/events.js";
 
 // AD-07: respond_by + delayed job + auto re-source. AD-11: one location per order.
 // PRD 10: material change (product/price/qty/time) needs retailer approval.
@@ -27,6 +28,7 @@ logisticsRouter.post("/orders/:orderId/slices/:supplierId/confirm", (req, res) =
   slice.status = "confirmed";
   if (o.status === "paid") o.status = "sourcing";
   saveOrder(o);
+  logEvent(o.id, "slice.confirmed", { supplierId: slice.supplierId });
   res.json({ ok: true, orderId: o.id, status: o.status, slice });
 });
 
@@ -50,6 +52,7 @@ logisticsRouter.post("/orders/:orderId/slices/:supplierId/reject", (req, res) =>
   }
   slice.status = "rejected";
   saveOrder(o);
+  logEvent(o.id, "slice.rejected", { supplierId: slice.supplierId, resourced });
   res.json({
     ok: true,
     orderId: o.id,
