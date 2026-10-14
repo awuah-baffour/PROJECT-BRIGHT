@@ -1,7 +1,7 @@
 {
-  "name": "Restock Ghana",
+  "name": "Restock Africa",
   "short_name": "Restock",
-  "description": "Tell Restock Ghana what your shop needs. We source it and coordinate delivery.",
+  "description": "Tell Restock Africa what your shop needs. We source it and coordinate delivery.",
   "start_url": "/home.html",
   "scope": "/",
   "display": "standalone",

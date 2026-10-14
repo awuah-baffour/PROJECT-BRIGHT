@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace "com.projectbright.restockghana"
+    namespace "com.projectbright.restockafrica"
     compileSdk 35
 
     defaultConfig {
-        applicationId "com.projectbright.restockghana"
+        applicationId "com.projectbright.restockafrica"
         minSdk 23
         targetSdk 35
         versionCode 1

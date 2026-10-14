@@ -956,7 +956,7 @@ function updateAppIdentity() {
   const shopHeading = $("homeShopName");
   if (shopHeading) shopHeading.textContent = user ? shopName : "Your shop";
   const profileName = $("profileShopName");
-  if (profileName) profileName.textContent = user ? shopName : "Welcome to Restock Ghana";
+  if (profileName) profileName.textContent = user ? shopName : "Welcome to Restock Africa";
   const roleLabel = $("profileRole");
   if (roleLabel) roleLabel.textContent = user ? `${user.role.replaceAll("_", " ")}${user.phoneVerified ? " · verified" : ""}` : "Sign in to view your account.";
   const phone = $("profilePhone");

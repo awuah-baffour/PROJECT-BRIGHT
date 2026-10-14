@@ -1,4 +1,4 @@
-package com.projectbright.restockghana;
+package com.projectbright.restockafrica;
 
 import android.app.Activity;
 import android.content.Intent;
