@@ -1,133 +1,81 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#0E7A4F" />
-<title>Project Bright — Restock</title>
-<link rel="manifest" href="/manifest.json" />
-<link rel="stylesheet" href="/styles.css" />
-<link rel="icon" href="/icon.svg" type="image/svg+xml" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f0f1f6" />
+  <meta name="description" content="Tell Restock Ghana what your shop needs. We find suppliers, prepare one clear quote and coordinate delivery." />
+  <title>Restock Ghana | Your shop, in good supply</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
 </head>
-<body>
-<header class="topbar">
-  <div>
-    <h1>Bright</h1>
-    <p id="conn" class="conn">connecting…</p>
-  </div>
-  <button id="settingsBtn" class="iconbtn" aria-label="Settings">⚙</button>
-</header>
-
-<main id="app">
-  <!-- ORDER -->
-  <section id="screen-order" class="screen">
-    <div class="card">
-      <h2>What does your shop need?</h2>
-      <p class="sub">Speak, type, or pick. One order, one payment, delivered.</p>
-      <div class="voicerow">
-        <button id="micBtn" class="voice" aria-label="Tap and speak">🎙</button>
-        <div class="voicehint">
-          <b id="micLabel">Tap and speak</b>
-          <small id="micHint">e.g. “2 bags rice and 4 bottles oil”</small>
-        </div>
+<body data-page="landing" class="landing-body">
+  <header class="landing-header">
+    <a class="brand" href="/"><span class="brand-mark">RG</span><span><strong>Restock Ghana</strong><small>Your shop, in good supply</small></span></a>
+    <nav class="landing-nav" aria-label="Site navigation"><a href="#how-it-works">How it works</a><a href="/access.html">For suppliers</a><a class="button button-dark" href="#account" data-auth-mode="login">Sign in <span aria-hidden="true">→</span></a></nav>
+  </header>
+  <main>
+    <section class="landing-hero">
+      <div class="landing-copy">
+        <p class="eyebrow"><span class="live-dot"></span> A BETTER WAY TO RESTOCK</p>
+        <h1>Your shop,<br />always in <span>good supply.</span></h1>
+        <p class="landing-intro">Tell us what your shop needs. We check approved suppliers, bring your prices together and help get your goods to your door.</p>
+        <div class="landing-actions"><a href="#account" class="button button-dark button-large" data-auth-mode="register">Create your shop account <span aria-hidden="true">→</span></a><a href="#how-it-works" class="text-action">See how it works <span aria-hidden="true">↓</span></a></div>
+        <div class="trust-row"><span class="trust-mark">✓</span> One request <span class="trust-mark">✓</span> One clear quote <span class="trust-mark">✓</span> One delivery partner</div>
       </div>
-      <textarea id="requestBox" rows="3" placeholder="Type here: 2 bags rice, 4 oil, delivery tomorrow"></textarea>
-      <div class="rowbtns">
-        <button id="parseBtn" class="btn btn-ghost">Add to list</button>
-        <button id="browseBtn" class="btn btn-ghost">Browse products</button>
+      <div class="landing-preview" aria-label="Restock Ghana mobile app preview">
+        <div class="preview-orbit orbit-one"></div><div class="preview-orbit orbit-two"></div>
+        <article class="phone-preview">
+          <div class="preview-top"><span class="preview-time">9:41</span><span aria-hidden="true">● ● ●</span></div>
+          <div class="preview-greeting"><div><small>GOOD MORNING</small><strong>Ama's Provisions</strong></div><span class="avatar">A</span></div>
+          <div class="preview-voice"><small>RESTOCK BY VOICE</small><strong>Just say what the shop needs.</strong><div class="preview-mic"><span>●</span><p>Twi, Ga, Ewe or English.<br />One quote from every supplier.</p></div></div>
+          <div class="preview-status">
+            <div class="preview-tile tile-peach"><small>RUNNING LOW</small><strong>Rice</strong><span>3 bags left</span></div>
+            <div class="preview-tile tile-blue"><small>ON ITS WAY</small><strong>Arrives 2:40 PM</strong><span class="progress-line"><i></i></span></div>
+            <div class="preview-tile tile-lilac"><small>WEEKLY</small><strong>Sugar, oil</strong><span>Every Monday</span></div>
+            <div class="preview-tile tile-mint"><small>LAST ORDER</small><strong>Reorder</strong><span>in one tap</span></div>
+          </div>
+          <div class="preview-tabbar"><span>Home</span><span>Orders</span><span>Suppliers</span><span>Profile</span></div>
+        </article>
+        <div class="floating-note"><span>●</span><strong>One request</strong><small>Multiple suppliers. One delivery.</small></div>
       </div>
-      <div id="productPicker" class="picker" hidden></div>
-    </div>
-
-    <div class="card">
-      <h2>Your list</h2>
-      <div id="items"></div>
-      <label class="field">Delivery location ID
-        <input id="locationInput" value="loc_1" />
-      </label>
-      <label class="field">Delivery window (optional)
-        <input id="windowInput" placeholder="tomorrow 9-11am" />
-      </label>
-      <button id="quoteBtn" class="btn btn-primary big">Check availability &amp; price</button>
-      <p><small class="hint">We check what suppliers have <b>before</b> you pay.</small></p>
-    </div>
-
-    <div class="card">
-      <h2>Due for restock?</h2>
-      <button id="replenishBtn" class="btn btn-ghost">Show suggestions</button>
-      <div id="suggestions"></div>
-    </div>
-  </section>
-
-  <!-- REVIEW -->
-  <section id="screen-review" class="screen" hidden>
-    <div class="card">
-      <h2>Review your order</h2>
-      <div id="quoteLines"></div>
-      <div id="quoteTotals"></div>
-      <div id="quoteFlags"></div>
-      <div class="rowbtns">
-        <button id="backBtn" class="btn btn-ghost">Edit list</button>
-        <button id="payBtn" class="btn btn-primary big">Pay once</button>
+    </section>
+    <section class="how-section" id="how-it-works">
+      <div class="section-heading"><div><p class="eyebrow">BUILT AROUND YOUR DAY</p><h2>Less chasing. More shopkeeping.</h2></div><p>We take care of the supplier coordination, so you can focus on the people who walk through your door.</p></div>
+      <div class="steps-grid">
+        <article><span class="step-number">01</span><h3>Tell us what you need</h3><p>Speak naturally, type a list, or browse products. Use English, Twi, Ga or Ewe.</p></article>
+        <article><span class="step-number">02</span><h3>Review one clear quote</h3><p>See what’s available, who’s supplying it, delivery charges and the total before you decide.</p></article>
+        <article><span class="step-number">03</span><h3>Follow it to your shop</h3><p>Check order progress and get support from one place—not a string of supplier calls.</p></article>
       </div>
-      <p><small class="hint">Pay with MoMo, card, or bank transfer. One payment covers all suppliers.</small></p>
-    </div>
-  </section>
-
-  <!-- STATUS -->
-  <section id="screen-status" class="screen" hidden>
-    <div class="card">
-      <h2 id="statusTitle">Order status</h2>
-      <div id="statusBody"></div>
-      <div class="rowbtns">
-        <button id="refreshBtn" class="btn btn-ghost">Refresh</button>
-        <button id="newOrderBtn" class="btn btn-ghost">New order</button>
+    </section>
+    <section class="account-section" id="account">
+      <div class="account-intro"><p class="eyebrow">YOUR WHOLESALE DESK</p><h2>Ready when your shop is.</h2><p>Create an account to build a restock, or sign in to pick up where you left off.</p><div class="account-note"><span>✓</span><p>Free to create an account.<br />Your order is only placed after you review your quote.</p></div></div>
+      <div class="account-panel">
+        <div class="auth-tabs" role="tablist" aria-label="Account access"><button type="button" class="auth-tab active" id="loginTab" role="tab" aria-selected="true">Sign in</button><button type="button" class="auth-tab" id="registerTab" role="tab" aria-selected="false">Create account</button></div>
+        <form id="loginForm" class="auth-form">
+          <div><p class="eyebrow">WELCOME BACK</p><h2>Good to have you back.</h2><p>Sign in to see your shop and active orders.</p></div>
+          <label>Phone number<input id="loginPhone" type="tel" autocomplete="tel" placeholder="e.g. 024 123 4567" required /></label>
+          <label>Password<input id="loginPassword" type="password" autocomplete="current-password" placeholder="Your password" required /></label>
+          <button id="loginBtn" class="button button-dark button-full" type="submit">Sign in <span aria-hidden="true">→</span></button>
+        </form>
+        <form id="registerForm" class="auth-form" hidden>
+          <div><p class="eyebrow">LET’S GET YOUR SHOP SET UP</p><h2>Create your account.</h2><p>Start with your shop details. You can browse before ordering.</p></div>
+          <label>Phone number<input id="registerPhone" type="tel" autocomplete="tel" placeholder="e.g. 024 123 4567" required /></label>
+          <label>Shop name<input id="registerShop" type="text" autocomplete="organization" placeholder="Your shop name" required /></label>
+          <div class="form-two"><label>Shop address<input id="registerAddress" type="text" autocomplete="street-address" placeholder="Area and street" required /></label><label>Nearby landmark<input id="registerLandmark" type="text" placeholder="A nearby landmark" required /></label></div>
+          <label>Delivery notes <span class="optional">OPTIONAL</span><input id="registerNotes" type="text" placeholder="Directions that help us find you" /></label>
+          <label>Create password<input id="registerPassword" type="password" autocomplete="new-password" minlength="12" placeholder="At least 12 characters" required /></label>
+          <button id="registerRetailerBtn" class="button button-dark button-full" type="submit">Create shop account <span aria-hidden="true">→</span></button>
+        </form>
+        <p id="accountResult" class="form-feedback" aria-live="polite"></p>
+        <p class="account-footnote">Phone verification is not available yet. We’ll let you know when SMS verification is connected.</p>
       </div>
-    </div>
-    <div class="card">
-      <h2>Report a problem</h2>
-      <div class="rowbtns">
-        <select id="issueType">
-          <option value="missing">Missing item</option>
-          <option value="damaged">Damaged</option>
-          <option value="incorrect">Wrong item</option>
-          <option value="other">Other</option>
-        </select>
-        <input id="issueDetail" placeholder="What happened?" />
-        <button id="issueBtn" class="btn btn-ghost">Send</button>
-      </div>
-      <div id="issues"></div>
-    </div>
-    <div class="card">
-      <h2>Save effort</h2>
-      <div class="rowbtns">
-        <button id="reorderBtn" class="btn btn-ghost">Buy again</button>
-        <button id="recurringBtn" class="btn btn-ghost">Repeat weekly</button>
-        <button id="trackBtn" class="btn btn-ghost">Live tracking</button>
-      </div>
-      <div id="extras"></div>
-    </div>
-  </section>
-
-  <!-- SETTINGS -->
-  <section id="screen-settings" class="screen" hidden>
-    <div class="card">
-      <h2>Settings</h2>
-      <label class="field">Server address
-        <input id="baseInput" placeholder="(same as this page)" />
-      </label>
-      <p><small class="hint">Leave empty when using the app from the server. For testing on your network, enter e.g. http://192.168.1.20:3000</small></p>
-      <button id="saveSettingsBtn" class="btn btn-primary">Save</button>
-    </div>
-  </section>
-</main>
-
-<nav class="tabbar">
-  <button data-tab="screen-order" class="tab active">🧺 Order</button>
-  <button data-tab="screen-review" class="tab">🧾 Review</button>
-  <button data-tab="screen-status" class="tab">📦 Status</button>
-</nav>
-
-<script src="/app.js"></script>
+    </section>
+    <section class="supplier-cta"><div><p class="eyebrow">ARE YOU A WHOLESALER?</p><h2>Bring your products closer to local shops.</h2><p>Apply to join our growing supplier network.</p></div><a class="button button-light" href="/access.html">Apply as a supplier <span aria-hidden="true">→</span></a></section>
+  </main>
+  <footer class="landing-footer"><a class="brand" href="/"><span class="brand-mark">RG</span><span><strong>Restock Ghana</strong><small>Made for Ghanaian shops</small></span></a><span>Simple restocking. Stronger local shops.</span><a href="/settings.html">Workspace settings</a></footer>
+  <div id="toast" class="toast" hidden></div>
+  <script src="/app.js"></script>
 </body>
 </html>

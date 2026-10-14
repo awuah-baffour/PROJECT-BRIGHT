@@ -1,31 +1,37 @@
 import { Router } from "express";
-import { products, suppliers } from "../data/seed.js";
+import { ah } from "../core/async.js";
+import { loadCatalog } from "../core/sourcing.js";
 
-// Phase 0 stub: catalog search uses Postgres FTS + trigram in Phase 1 (AD-13)
-// Unmatched queries go to sourcing backlog per PRD 9.2
-// Phase 1: search in-memory seed (approved suppliers only).
 export const catalogRouter = Router();
 
-catalogRouter.get("/products", (_req, res) => {
-  res.json(
-    products
-      .filter((p) => suppliers.find((s) => s.id === p.supplierId)?.approved)
-      .map((p) => ({
-        ...p,
-        supplierName: suppliers.find((s) => s.id === p.supplierId)!.name,
-      })),
-  );
-});
+catalogRouter.get(
+  "/products",
+  ah(async (_req, res) => {
+    const catalog = await loadCatalog();
+    res.json(
+      catalog.products
+        .filter((product) => catalog.suppliers.find((supplier) => supplier.id === product.supplierId)?.approved)
+        .map((product) => ({
+          ...product,
+          supplierName: catalog.suppliers.find((supplier) => supplier.id === product.supplierId)!.name,
+        })),
+    );
+  }),
+);
 
-catalogRouter.get("/search", (req, res) => {
-  const q = String(req.query.q ?? "").trim().toLowerCase();
-  if (!q) return res.status(400).json({ error: "q required" });
-  const results = products
-    .filter((p) => suppliers.find((s) => s.id === p.supplierId)?.approved)
-    .filter((p) => p.name.toLowerCase().includes(q) || (p.variant ?? "").toLowerCase().includes(q))
-    .map((p) => ({
-      ...p,
-      supplierName: suppliers.find((s) => s.id === p.supplierId)!.name,
-    }));
-  res.json({ query: req.query.q, results, sourcingBacklogLogged: results.length === 0 });
-});
+catalogRouter.get(
+  "/search",
+  ah(async (req, res) => {
+    const q = String(req.query.q ?? "").trim().toLowerCase();
+    if (!q) return res.status(400).json({ error: "q required" });
+    const catalog = await loadCatalog();
+    const results = catalog.products
+      .filter((product) => catalog.suppliers.find((supplier) => supplier.id === product.supplierId)?.approved)
+      .filter((product) => product.name.toLowerCase().includes(q) || (product.variant ?? "").toLowerCase().includes(q))
+      .map((product) => ({
+        ...product,
+        supplierName: catalog.suppliers.find((supplier) => supplier.id === product.supplierId)!.name,
+      }));
+    res.json({ query: req.query.q, results, sourcingBacklogLogged: results.length === 0 });
+  }),
+);

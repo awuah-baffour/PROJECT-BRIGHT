@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f0f1f6" />
+  <title>Operations | Restock Ghana</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+</head>
+<body data-page="ops" class="app-body">
+  <div class="app-frame">
+    <header class="app-topbar">
+      <a class="brand" href="ops.html"><span class="brand-mark">RG</span><span><strong>Restock Ghana</strong><small>Operations console</small></span></a>
+      <nav class="desktop-nav" aria-label="Operations navigation"><a href="ops.html" class="active" aria-current="page">Operations</a><a href="home.html">Retail workspace</a><a href="profile.html">Profile</a></nav>
+      <a class="top-account" href="profile.html"><span class="avatar" id="homeAvatar">A</span><span id="homeAccountLabel">My account</span></a>
+    </header>
+    <main class="app-main">
+      <section class="greeting-row page-greeting"><div><p class="eyebrow">ADMIN / OPERATIONS</p><h1>Keep every order moving.</h1><p class="muted">Review supplier applications, order health and operational exceptions.</p></div><a class="button button-light" href="home.html">Retail workspace</a></section>
+      <section class="admin-metrics" id="adminDashboard" aria-live="polite"></section>
+      <section class="supplier-workspace-grid ops-grid">
+        <article class="workspace-card"><div class="section-heading"><div><p class="eyebrow">SUPPLIER NETWORK</p><h2>Applications to review</h2></div><button id="adminSuppliersBtn" class="button button-light">Refresh</button></div><div id="adminSuppliers" class="product-list"></div></article>
+        <article class="workspace-card"><div class="section-heading"><div><p class="eyebrow">PILOT HEALTH</p><h2>Operations metrics</h2></div><button id="opsMetricsBtn" class="button button-light">Refresh</button></div><pre id="opsMetrics" class="result" aria-live="polite"></pre></article>
+        <article class="workspace-card"><div class="section-heading"><div><p class="eyebrow">EXCEPTION REVIEW</p><h2>Check an order</h2></div></div><div class="lookup-row"><label class="sr-only" for="exceptionOrderId">Order ID</label><input id="exceptionOrderId" placeholder="Paste an order reference" /><button id="opsExceptionsBtn" class="button button-dark">Review</button></div><pre id="opsExceptions" class="result" aria-live="polite"></pre></article>
+      </section>
+    </main>
+    <nav class="mobile-nav" aria-label="Operations navigation"><a href="ops.html" class="active" aria-current="page"><span>⌂</span>Operations</a><a href="home.html"><span>▤</span>Retail</a><a href="profile.html"><span>○</span>Profile</a></nav>
+  </div>
+  <div id="toast" class="toast" hidden></div>
+  <script src="app.js"></script>
+</body>
+</html>

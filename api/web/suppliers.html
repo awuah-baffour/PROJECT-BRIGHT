@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f0f1f6" />
+  <title>Suppliers | Restock Ghana</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+</head>
+<body data-page="suppliers" class="app-body">
+  <div class="app-frame">
+    <header class="app-topbar">
+      <a class="brand" href="/home.html"><span class="brand-mark">RG</span><span><strong>Restock Ghana</strong><small>Your shop, in good supply</small></span></a>
+      <nav class="desktop-nav" aria-label="Main navigation">
+        <a href="/home.html" data-nav="home">Home</a><a href="/orders.html" data-nav="orders">Orders</a><a href="/suppliers.html" data-nav="suppliers">Suppliers</a><a href="/profile.html" data-nav="profile">Profile</a>
+      </nav>
+      <a class="top-account" href="/profile.html"><span class="avatar" id="homeAvatar">A</span><span id="homeAccountLabel">My account</span></a>
+    </header>
+    <main class="app-main">
+      <section class="greeting-row page-greeting">
+        <div><p class="eyebrow">YOUR MARKETPLACE</p><h1>Suppliers &amp; products</h1><p class="muted">Browse available products from approved suppliers.</p></div>
+        <a class="button button-light" href="/restock.html">Build a restock</a>
+      </section>
+      <section class="catalog-toolbar">
+        <label class="search-field"><span aria-hidden="true">⌕</span><input id="supplierSearch" type="search" placeholder="Search products or suppliers" aria-label="Search products or suppliers" /></label>
+        <button id="refreshCatalogBtn" class="button button-light">Refresh</button>
+      </section>
+      <section id="retailerCatalog" class="supplier-grid" aria-live="polite"><div class="empty">Loading approved supplier products…</div></section>
+    </main>
+    <nav class="mobile-nav" aria-label="Shop navigation">
+      <a href="/home.html" data-nav="home"><span aria-hidden="true">⌂</span>Home</a>
+      <a href="/orders.html" data-nav="orders"><span aria-hidden="true">▤</span>Orders</a>
+      <a href="/suppliers.html" data-nav="suppliers"><span aria-hidden="true">◫</span>Suppliers</a>
+      <a href="/profile.html" data-nav="profile"><span aria-hidden="true">○</span>Profile</a>
+    </nav>
+  </div>
+  <div id="toast" class="toast" hidden></div>
+  <script src="/app.js"></script>
+</body>
+</html>

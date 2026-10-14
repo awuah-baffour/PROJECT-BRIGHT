@@ -3,11 +3,13 @@ import { ah } from "../core/async.js";
 import { getOrder, orderCounts } from "../store/orders.js";
 import { issuesForOrder } from "../store/issues.js";
 import { supplierStats } from "../store/supplierStats.js";
+import { authRequired, requireRoles } from "./auth.js";
 
 // Phase 2 ops console: exception queue + cost analytics (PRD 15).
 // Metrics are now real (orders + GMV from the database); per-supplier quality
 // stays in memory and rebuilds from live confirm/reject traffic.
 export const opsRouter = Router();
+opsRouter.use(authRequired, requireRoles("admin"));
 
 function isExpired(respondBy: string): boolean {
   return new Date(respondBy).getTime() < Date.now();

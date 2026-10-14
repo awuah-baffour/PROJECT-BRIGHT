@@ -1,15 +1,69 @@
-const SHELL = ["/", "/styles.css", "/app.js", "/manifest.json", "/icon.svg"];
-self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open("bright-v1").then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
-});
-self.addEventListener("activate", (e) => {
-  e.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== "bright-v1").map((k) => caches.delete(k)))),
+const CACHE_NAME = "bright-shell-v5";
+const APP_SHELL = [
+  "/",
+  "/home.html",
+  "/restock.html",
+  "/orders.html",
+  "/access.html",
+  "/supplier.html",
+  "/suppliers.html",
+  "/profile.html",
+  "/ops.html",
+  "/settings.html",
+  "/styles.css",
+  "/app.js",
+  "/manifest.json",
+  "/icon.svg",
+];
+
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.addAll(APP_SHELL))
+      .then(() => self.skipWaiting()),
   );
 });
-self.addEventListener("fetch", (e) => {
-  const url = new URL(e.request.url);
-  // App shell: cache first (works offline). API (/v1): network only (fresh prices).
-  if (url.pathname.startsWith("/v1")) return;
-  e.respondWith(caches.match(e.request).then((hit) => hit || fetch(e.request)));
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys()
+      .then((keys) => Promise.all(
+        keys.filter((key) => key.startsWith("bright-shell-") && key !== CACHE_NAME)
+          .map((key) => caches.delete(key)),
+      ))
+      .then(() => self.clients.claim()),
+  );
+});
+
+self.addEventListener("fetch", (event) => {
+  const request = event.request;
+  const url = new URL(request.url);
+  if (request.method !== "GET" || url.origin !== self.location.origin || url.pathname.startsWith("/v1/")) return;
+
+  if (request.mode === "navigate") {
+    event.respondWith(
+      fetch(request)
+        .then(async (response) => {
+          if (response.ok) {
+            await caches.open(CACHE_NAME).then((cache) => cache.put(url.pathname, response.clone()));
+          }
+          return response;
+        })
+        .catch(async () => {
+          const cached = await caches.match(url.pathname);
+          return cached || caches.match("/");
+        }),
+    );
+    return;
+  }
+
+  event.respondWith(
+    caches.match(request)
+      .then((cached) => cached || fetch(request).then(async (response) => {
+        if (response.ok) {
+          await caches.open(CACHE_NAME).then((cache) => cache.put(request, response.clone()));
+        }
+        return response;
+      })),
+  );
 });

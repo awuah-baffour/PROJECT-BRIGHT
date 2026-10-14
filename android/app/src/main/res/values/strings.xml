@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Restock Ghana</string>
+    <string name="loading_message">Couldn’t connect. Tap to try again.</string>
+</resources>

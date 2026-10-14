@@ -1,13 +1,12 @@
 import { Router } from "express";
 import { canTransition, type OrderStatus } from "../core/orderMachine.js";
 import { ah } from "../core/async.js";
-import { buildQuote } from "../core/sourcing.js";
+import { buildQuote, loadCatalog } from "../core/sourcing.js";
 import { priceQuote } from "../core/pricing.js";
 import { getOrder, makeId, saveOrder } from "../store/orders.js";
 import { logEvent, timeline } from "../store/events.js";
 import { issuesForOrder } from "../store/issues.js";
 import { recordAssign } from "../store/supplierStats.js";
-import { recordPurchase } from "../store/history.js";
 import { getAllPreferences, preferredSupplierFor } from "../store/preferences.js";
 
 // AD-06: draft -> quoted -> pending_payment -> paid -> sourcing -> preparing
@@ -56,11 +55,13 @@ ordersRouter.post(
       }
     }
     const allPrefs = await getAllPreferences();
+    const catalog = await loadCatalog();
     // Quote each drop with its own location preferences, then merge by supplier.
     const perDrop = drops.map((d) => ({
       locationId: d.locationId,
       quote: buildQuote(d.items, {
         preferredSupplierFor: (name) => preferredSupplierFor(allPrefs, d.locationId, name),
+        catalog,
       }),
     }));
     const mergedLines = perDrop.flatMap((d) => d.quote.lines.map((l) => ({ ...l, locationId: d.locationId })));
@@ -126,26 +127,12 @@ ordersRouter.get(
   }),
 );
 
-// Simplified pay: quoted -> paid -> sourcing, slices move to assigned with SLA.
-ordersRouter.post(
-  "/:id/pay",
-  ah(async (req, res) => {
-    const o = await getOrder(req.params.id);
-    if (!o) return res.status(404).json({ error: "order not found" });
-    if (o.status !== "quoted") return res.status(400).json({ error: `order is ${o.status}, must be quoted` });
-    if (o.quote.lines.length === 0) return res.status(400).json({ error: "nothing available to pay for" });
-    o.status = "paid";
-    await saveOrder(o);
-    for (const loc of o.deliveryLocations ?? [o.deliveryLocationId]) {
-      await recordPurchase(
-        loc,
-        o.quote.lines.filter((l) => (l.locationId ?? o.deliveryLocationId) === loc),
-      );
-    }
-    await logEvent(o.id, "order.paid", { total: o.quote.total });
-    res.json({ ok: true, orderId: o.id, status: o.status, total: o.quote.total, slices: o.slices });
-  }),
-);
+ordersRouter.post("/:id/pay", (_req, res) => {
+  res.status(503).json({
+    error: "Payments are coming soon. Your order has not been paid and its status has not changed.",
+    code: "PAYMENTS_UNAVAILABLE",
+  });
+});
 
 // Detailed progress by order + item + supplier + stage (PRD 9.8, 9.12).
 ordersRouter.get(
@@ -172,9 +159,11 @@ ordersRouter.post(
     if (!prev) return res.status(404).json({ error: "order not found" });
     const items = prev.quote.lines.map((l) => ({ name: l.requestedName, qty: l.qtyRequested }));
     const allPrefs = await getAllPreferences();
+    const catalog = await loadCatalog();
     const quote = priceQuote(
       buildQuote(items, {
         preferredSupplierFor: (name) => preferredSupplierFor(allPrefs, prev.deliveryLocationId, name),
+        catalog,
       }),
     );
     const slaMinutes = Number(process.env.SUPPLIER_SLA_MINUTES ?? 20);

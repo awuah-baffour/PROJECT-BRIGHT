@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f0f1f6" />
+  <meta name="description" content="Restock Ghana brings your suppliers, orders and deliveries together." />
+  <title>Home | Restock Ghana</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+</head>
+<body data-page="home" class="app-body">
+  <div class="app-frame">
+    <header class="app-topbar">
+      <a class="brand" href="/home.html"><span class="brand-mark">RG</span><span><strong>Restock Ghana</strong><small>Your shop, in good supply</small></span></a>
+      <nav class="desktop-nav" aria-label="Main navigation">
+        <a href="/home.html" data-nav="home">Home</a><a href="/orders.html" data-nav="orders">Orders</a><a href="/suppliers.html" data-nav="suppliers">Suppliers</a><a href="/profile.html" data-nav="profile">Profile</a>
+      </nav>
+      <a class="top-account" href="/profile.html"><span class="avatar" id="homeAvatar">A</span><span id="homeAccountLabel">My account</span></a>
+    </header>
+    <main class="app-main">
+      <section class="greeting-row">
+        <div><p class="eyebrow">GOOD MORNING</p><h1 id="homeShopName">Your shop</h1><p class="muted">Here’s what’s happening with your shop today.</p></div>
+        <a class="text-action" href="/profile.html">Account <span aria-hidden="true">↗</span></a>
+      </section>
+      <section class="voice-hero">
+        <div class="voice-copy"><p class="eyebrow">RESTOCK BY VOICE</p><h2>Just say what the shop needs.</h2><p>Twi, Ga, Ewe or English.<br />One quote from every supplier.</p></div>
+        <a class="voice-button" href="/restock.html" aria-label="Start a voice restock"><span class="mic-symbol" aria-hidden="true">●</span><span class="sr-only">Start a voice restock</span></a>
+        <a class="voice-start" href="/restock.html">Start a restock <span aria-hidden="true">→</span></a>
+      </section>
+      <section class="status-grid" aria-label="Shop status">
+        <article class="status-card status-peach">
+          <p class="status-label">RUNNING LOW</p><h2 id="runningLowName">Your essentials</h2><p id="runningLowDetail">View items to restock</p><a class="card-action" href="/restock.html" aria-label="Restock low items">Restock <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="status-card status-blue">
+          <p class="status-label">ON ITS WAY</p><h2 id="deliveryStatus">No active delivery</h2><p id="deliveryDetail">Your order updates will appear here.</p><a class="card-action" href="/orders.html">Track order <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="status-card status-lilac">
+          <p class="status-label">WEEKLY</p><h2 id="weeklyName">A smarter restock</h2><p id="weeklyDetail">Suggestions based on your orders</p><a class="card-action" href="/restock.html">Build a basket <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="status-card status-mint">
+          <p class="status-label">LAST ORDER</p><h2 id="lastOrderName">Your first order</h2><p id="lastOrderDetail">Your order history will appear here.</p><a class="card-action" href="/orders.html">View orders <span aria-hidden="true">→</span></a>
+        </article>
+      </section>
+      <section class="home-lower">
+        <div class="section-heading"><div><p class="eyebrow">MADE FOR YOUR SHOP</p><h2>Restocking, made simpler.</h2></div><a class="text-action" href="/suppliers.html">Browse suppliers <span aria-hidden="true">→</span></a></div>
+        <div class="benefit-grid">
+          <article><span class="benefit-icon">01</span><div><h3>One request</h3><p>Tell us what you need by voice, text or catalog.</p></div></article>
+          <article><span class="benefit-icon">02</span><div><h3>One clear quote</h3><p>See availability, suppliers and delivery before you confirm.</p></div></article>
+          <article><span class="benefit-icon">03</span><div><h3>One place to follow up</h3><p>Track the order and get help from our team.</p></div></article>
+        </div>
+      </section>
+    </main>
+    <nav class="mobile-nav" aria-label="Shop navigation">
+      <a href="/home.html" data-nav="home"><span aria-hidden="true">⌂</span>Home</a>
+      <a href="/orders.html" data-nav="orders"><span aria-hidden="true">▤</span>Orders</a>
+      <a href="/suppliers.html" data-nav="suppliers"><span aria-hidden="true">◫</span>Suppliers</a>
+      <a href="/profile.html" data-nav="profile"><span aria-hidden="true">○</span>Profile</a>
+    </nav>
+  </div>
+  <div id="toast" class="toast" hidden></div>
+  <script src="/app.js"></script>
+</body>
+</html>

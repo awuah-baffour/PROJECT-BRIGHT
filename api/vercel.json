@@ -1,0 +1,21 @@
+{
+  "buildCommand": "npm run vercel-build",
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/index.html",
+      "permanent": false
+    }
+  ],
+  "functions": {
+    "api/index.ts": {
+      "includeFiles": "web/**"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api/index"
+    }
+  ]
+}

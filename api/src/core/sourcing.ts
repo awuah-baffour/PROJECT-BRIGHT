@@ -1,5 +1,37 @@
 import { products, suppliers } from "../data/seed.js";
 import { supplierScore } from "../store/supplierStats.js";
+import { prisma } from "../db.js";
+
+export interface CatalogSnapshot {
+  products: typeof products;
+  suppliers: typeof suppliers;
+}
+
+export async function loadCatalog(): Promise<CatalogSnapshot> {
+  const approvedSuppliers = await prisma.supplier.findMany({
+    where: { approved: true },
+    select: { id: true, name: true, approved: true, rating: true },
+  });
+  if (approvedSuppliers.length === 0) return { products, suppliers };
+  const supplierIds = approvedSuppliers.map((supplier) => supplier.id);
+  const listedProducts = await prisma.product.findMany({ where: { supplierId: { in: supplierIds } } });
+  const supplierProducts = listedProducts.map((product) => {
+    if (!product.supplierId) throw new Error(`Supplier product ${product.id} is missing its supplier.`);
+    return {
+      id: product.id,
+      supplierId: product.supplierId,
+      name: product.name,
+      variant: product.variant ?? undefined,
+      unit: product.unit,
+      price: product.price,
+      inStock: product.inStock,
+    };
+  });
+  return {
+    suppliers: [...suppliers, ...approvedSuppliers],
+    products: [...products, ...supplierProducts],
+  };
+}
 
 // PRD 9.3: compare approved suppliers, recommend best, retailer can override.
 // PRD 9.4: partial fill + alternatives, no silent material substitution.
@@ -50,16 +82,18 @@ function norm(s: string): string {
 
 export function buildQuote(
   requested: RequestedItem[],
-  opts?: { preferredSupplierFor?: (productName: string) => string | null },
+  opts?: { preferredSupplierFor?: (productName: string) => string | null; catalog?: CatalogSnapshot },
 ): Quote {
   const lines: QuoteLine[] = [];
   const unavailable: Unavailable[] = [];
+  const catalogProducts = opts?.catalog?.products ?? products;
+  const catalogSuppliers = opts?.catalog?.suppliers ?? suppliers;
 
   for (const r of requested) {
     const q = norm(r.name);
-    const candidates = products
+    const candidates = catalogProducts
       .filter((p) => norm(p.name).includes(q) || q.includes(norm(p.name)))
-      .filter((p) => suppliers.find((s) => s.id === p.supplierId)?.approved)
+      .filter((p) => catalogSuppliers.find((s) => s.id === p.supplierId)?.approved)
       .sort((a, b) => {
         const aFull = a.inStock >= r.qty ? 0 : 1;
         const bFull = b.inStock >= r.qty ? 0 : 1;
@@ -83,7 +117,7 @@ export function buildQuote(
       continue;
     }
     const best = candidates[0];
-    const sup = suppliers.find((s) => s.id === best.supplierId)!;
+    const sup = catalogSuppliers.find((s) => s.id === best.supplierId)!;
     if (best.inStock <= 0) {
       const alts = candidates
         .filter((c) => c.inStock > 0)
@@ -91,7 +125,7 @@ export function buildQuote(
         .map((c) => ({
           productId: c.id,
           productName: `${c.name}${c.variant ? ` ${c.variant}` : ""}`,
-          supplierName: suppliers.find((s) => s.id === c.supplierId)!.name,
+          supplierName: catalogSuppliers.find((s) => s.id === c.supplierId)!.name,
           unitPrice: c.price,
           inStock: c.inStock,
         }));
@@ -119,7 +153,7 @@ export function buildQuote(
         .map((c) => ({
           productId: c.id,
           productName: `${c.name}${c.variant ? ` ${c.variant}` : ""}`,
-          supplierName: suppliers.find((s) => s.id === c.supplierId)!.name,
+          supplierName: catalogSuppliers.find((s) => s.id === c.supplierId)!.name,
           unitPrice: c.price,
           inStock: c.inStock,
         }));

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f0f1f6" />
+  <title>Supplier access | Restock Ghana</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+</head>
+<body data-page="access" class="landing-body">
+  <header class="landing-header">
+    <a class="brand" href="index.html"><span class="brand-mark">RG</span><span><strong>Restock Ghana</strong><small>Your shop, in good supply</small></span></a>
+    <nav class="landing-nav" aria-label="Site navigation"><a href="index.html">For retailers</a><a class="button button-light" href="index.html #account" data-auth-mode="login">Retailer sign in</a></nav>
+  </header>
+  <main class="access-main">
+    <section class="access-intro"><p class="eyebrow">GROW WITH LOCAL SHOPS</p><h1>Bring your products closer to the people who need them.</h1><p>Join the Restock Ghana supplier network. Keep your listings and stock up to date, then manage your assigned order slices in one place.</p><div class="supplier-steps"><span><b>01</b> Apply to join</span><span><b>02</b> Get reviewed</span><span><b>03</b> List your products</span></div></section>
+    <section class="access-card">
+      <div class="section-heading"><div><p class="eyebrow">SUPPLIER APPLICATION</p><h2>Apply as a supplier</h2></div><span class="review-badge">Reviewed by our team</span></div>
+      <p class="muted">Create your supplier login. Your account stays pending until the team reviews your application.</p>
+      <div class="form-stack">
+        <label>Business name<input id="supplierBusiness" type="text" autocomplete="organization" placeholder="Your registered or trading name" required /></label>
+        <label>Phone number<input id="supplierPhone" type="tel" autocomplete="tel" placeholder="e.g. 024 123 4567" required /></label>
+        <label>Create password<input id="supplierPassword" type="password" autocomplete="new-password" minlength="12" placeholder="At least 12 characters" required /></label>
+        <button id="registerSupplierBtn" class="button button-dark button-full" type="button">Submit application <span aria-hidden="true">→</span></button>
+      </div>
+      <p id="accountResult" class="form-feedback" aria-live="polite"></p>
+      <p class="account-footnote">Already have a supplier account? <a href="index.html#account" data-auth-mode="login">Sign in from the home page.</a></p>
+    </section>
+    <section class="access-team" id="teamAccess">
+      <div><p class="eyebrow">FOR SHOP OWNERS &amp; MANAGERS</p><h2>Set up your shop team.</h2><p>Create a manager or staff account. Sign in with an owner or manager account to get started.</p></div>
+      <div class="team-form">
+        <input id="staffPhone" type="tel" autocomplete="tel" aria-label="Staff phone number" placeholder="Staff phone number" />
+        <input id="staffPassword" type="password" autocomplete="new-password" minlength="12" aria-label="Temporary password" placeholder="Temporary password, 12+ characters" />
+        <select id="staffRole" aria-label="Staff role"><option value="retailer_staff">Staff access</option><option value="retailer_manager">Manager access</option></select>
+        <input id="staffDailyCap" type="number" min="0" aria-label="Daily cap in pesewas" placeholder="Daily cap (pesewas)" />
+        <input id="staffOrderCap" type="number" min="0" aria-label="Per-order cap in pesewas" placeholder="Order cap (pesewas)" />
+        <button id="createStaffBtn" class="button button-light">Create team login</button>
+      </div>
+    </section>
+  </main>
+  <div id="toast" class="toast" hidden></div>
+  <script src="/app.js"></script>
+</body>
+</html>

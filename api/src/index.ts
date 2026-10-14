@@ -1,8 +1,10 @@
 import express from "express";
+import { existsSync } from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { prisma } from "./db.js";
 import { healthRouter } from "./modules/health.js";
-import { identityRouter } from "./modules/identity.js";
+import { bootstrapAdminFromEnvironment, identityRouter } from "./modules/identity.js";
 import { catalogRouter } from "./modules/catalog.js";
 import { ordersRouter } from "./modules/orders.js";
 import { paymentsRouter } from "./modules/payments.js";
@@ -14,24 +16,38 @@ import { opsRouter } from "./modules/ops.js";
 import { outboundRouter } from "./modules/outbound.js";
 import { insightsRouter } from "./modules/insights.js";
 import { trackingRouter } from "./modules/tracking.js";
+import { adminRouter } from "./modules/admin.js";
+import { suppliersRouter } from "./modules/suppliers.js";
+import { integrationsRouter } from "./modules/integrations.js";
 
-// Refuse to boot without the database file. First run:
-//   npx prisma migrate dev   (reads DATABASE_URL from api/.env)
-try {
-  await prisma.$queryRaw`SELECT 1`;
-} catch {
-  console.error("Database not reachable. Run: npx prisma migrate dev (DATABASE_URL in api/.env)");
-  process.exit(1);
-}
+await bootstrapAdminFromEnvironment();
 
-const app = express();
+export const app = express();
 app.use(express.json({ limit: "1mb" }));
 
 // Shopkeeper app (static PWA, same origin so no CORS needed).
-app.use(express.static(path.join(process.cwd(), "web")));
+const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
+const webDirectory = [
+  path.join(moduleDirectory, "web"),
+  path.resolve(moduleDirectory, "../web"),
+  path.join(process.cwd(), "web"),
+  path.join(process.cwd(), "api", "web"),
+].find(existsSync);
+if (!webDirectory) {
+  throw new Error("Frontend assets not found. Ensure api/web is included in the deployment.");
+}
+app.get("/", (_req, res, next) => {
+  res.sendFile(path.join(webDirectory, "index.html"), (error) => {
+    if (error) next(error);
+  });
+});
+app.use(express.static(webDirectory));
 
 app.use("/v1/health", healthRouter);
 app.use("/v1/identity", identityRouter);
+app.use("/v1/admin", adminRouter);
+app.use("/v1/suppliers", suppliersRouter);
+app.use("/v1/integrations", integrationsRouter);
 app.use("/v1/catalog", catalogRouter);
 app.use("/v1/orders", ordersRouter);
 app.use("/v1/payments", paymentsRouter);
@@ -51,4 +67,8 @@ app.use((err: unknown, _req: express.Request, res: express.Response, _next: expr
 });
 
 const port = Number(process.env.PORT ?? 3000);
-app.listen(port, () => console.log(`Bright API listening on :${port}`));
+if (!process.env.VERCEL) {
+  app.listen(port, () => console.log(`Bright API listening on :${port}`));
+}
+
+export default app;

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f0f1f6" />
+  <title>Orders | Restock Ghana</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+</head>
+<body data-page="orders" class="app-body">
+  <div class="app-frame">
+    <header class="app-topbar">
+      <a class="brand" href="/home.html"><span class="brand-mark">RG</span><span><strong>Restock Ghana</strong><small>Your shop, in good supply</small></span></a>
+      <nav class="desktop-nav" aria-label="Main navigation">
+        <a href="/home.html" data-nav="home">Home</a><a href="/orders.html" data-nav="orders">Orders</a><a href="/suppliers.html" data-nav="suppliers">Suppliers</a><a href="/profile.html" data-nav="profile">Profile</a>
+      </nav>
+      <a class="top-account" href="/profile.html"><span class="avatar" id="homeAvatar">A</span><span id="homeAccountLabel">My account</span></a>
+    </header>
+    <main class="app-main orders-main">
+      <section class="greeting-row page-greeting"><div><p class="eyebrow">YOUR RESTOCKS</p><h1>Orders &amp; delivery</h1><p class="muted">One place to see your quote, suppliers and delivery progress.</p></div><a class="button button-dark" href="/restock.html">New restock <span aria-hidden="true">＋</span></a></section>
+      <section class="order-layout">
+        <article class="order-column">
+          <section class="order-card">
+            <div class="section-heading"><div><p class="eyebrow">YOUR ORDER</p><h2 id="orderHeading">Your quote</h2></div><button id="refreshOrderBtn" class="icon-button" type="button" aria-label="Refresh order">↻</button></div>
+            <p id="quoteEmpty" class="empty">Your new quote will appear here. Start a restock to check availability and get a price.</p>
+            <div id="quoteView" hidden>
+              <div class="quote-intro"><span class="quote-avatar">RG</span><div><strong>One order, sourced across suppliers</strong><small>Every line and fee shown before payment.</small></div></div>
+              <div id="quoteLines" class="quote-lines"></div>
+              <div id="quoteFlags" class="quote-flags"></div>
+              <div id="quoteTotals" class="quote-totals"></div>
+              <div id="paymentNotice" class="payment-notice" role="status"></div>
+              <div class="quote-actions"><button id="payBtn" class="button button-dark button-full">Pay with mobile money <span aria-hidden="true">→</span></button><button id="reorderBtn" class="button button-light">Reorder these items</button><button id="recurringBtn" class="button button-quiet">Repeat weekly</button></div>
+              <p class="secure-note">Payment is only confirmed when your provider is connected. You won’t be charged by a demo.</p>
+            </div>
+          </section>
+          <section class="support-card">
+            <div><p class="eyebrow">WE’RE HERE TO HELP</p><h2>Something not right?</h2><p>Tell us about a missing, damaged or incorrect item.</p></div>
+            <div class="support-form"><label class="sr-only" for="issueType">Issue type</label><select id="issueType"><option value="missing">Missing item</option><option value="damaged">Damaged</option><option value="incorrect">Incorrect item</option><option value="other">Other</option></select><label class="sr-only" for="issueDetail">Issue details</label><input id="issueDetail" placeholder="What happened?" /><button id="issueBtn" class="button button-light">Send to support</button></div>
+            <div id="issues" class="quote-flags"></div>
+          </section>
+        </article>
+        <aside class="delivery-column">
+          <section class="delivery-card">
+            <p class="eyebrow" id="deliveryEyebrow">ORDER PROGRESS</p><h2 id="deliveryTitle">On its way to your shop</h2><p id="deliverySummary" class="muted">Add an order number to see the latest delivery update.</p>
+            <div class="route-illustration" aria-hidden="true"><div class="route-road"></div><div class="route-line"></div><span class="route-origin">●</span><span class="route-marker">●</span><span class="route-destination">■</span></div>
+            <div class="progress-list" id="statusBody"></div>
+            <div id="trackingBody" class="tracking-details"></div>
+            <div class="order-lookup"><label for="orderLookupInput">Order reference</label><div class="lookup-row"><input id="orderLookupInput" placeholder="Paste your order ID" /><button id="lookupOrderBtn" class="button button-dark">Find order</button></div></div>
+            <button id="trackBtn" class="button button-light button-full">Enable delivery tracking</button>
+          </section>
+        </aside>
+      </section>
+    </main>
+    <nav class="mobile-nav" aria-label="Shop navigation">
+      <a href="/home.html" data-nav="home"><span aria-hidden="true">⌂</span>Home</a>
+      <a href="/orders.html" data-nav="orders"><span aria-hidden="true">▤</span>Orders</a>
+      <a href="/suppliers.html" data-nav="suppliers"><span aria-hidden="true">◫</span>Suppliers</a>
+      <a href="/profile.html" data-nav="profile"><span aria-hidden="true">○</span>Profile</a>
+    </nav>
+  </div>
+  <div id="toast" class="toast" hidden></div>
+  <script src="/app.js"></script>
+</body>
+</html>

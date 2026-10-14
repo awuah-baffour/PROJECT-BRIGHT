@@ -1,11 +1,13 @@
 {
-  "name": "Project Bright — Restock",
-  "short_name": "Bright",
-  "description": "Tell us what your shop needs. We find it, coordinate it and deliver it.",
-  "start_url": "/",
+  "name": "Restock Ghana",
+  "short_name": "Restock",
+  "description": "Tell Restock Ghana what your shop needs. We source it and coordinate delivery.",
+  "start_url": "/home.html",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#F7F5F0",
-  "theme_color": "#0E7A4F",
-  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+  "background_color": "#f0f1f6",
+  "theme_color": "#f0f1f6",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
 }

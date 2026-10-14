@@ -1,22 +1,15 @@
-// AD-05 Postgres source of truth. AD-15 append-only events + audit.
-//
-// Local dev uses SQLite (zero setup): DATABASE_URL="file:./dev.db".
-// Production uses Postgres: change datasource provider to "postgresql",
-// set DATABASE_URL to the Postgres connection string, and run
-// `npx prisma migrate dev`. All access goes through Prisma, so no
-// application code changes are needed for the switch.
-//
+// PostgreSQL is the source of truth for local and deployed environments.
+// AD-15 append-only events + audit.
 // Table strategy:
-// - Normalized domain models (Retailer..LedgerEntry) are populated when the
-//   payments ledger and supplier onboarding go live (production phase).
-// - Pilot tables (OrderDoc..Tracking) back the API today and survive
-//   restarts via dev.db.
+// - Retailer, Supplier, User, and Session back live account onboarding.
+// - Pilot order tables (OrderDoc..Tracking) back the API today; payment-ledger
+//   models remain planned.
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -28,6 +21,7 @@ model Retailer {
   staff     Staff[]
   locations Location[]
   orders    Order[]
+  users     User[]
 }
 
 model Staff {
@@ -53,11 +47,46 @@ model Location {
 }
 
 model Supplier {
-  id        String      @id @default(cuid())
-  name      String
-  approved  Boolean     @default(false)
-  rating    Float       @default(0)
-  slices    OrderSlice[]
+  id               String      @id @default(cuid())
+  name             String
+  approved         Boolean     @default(false)
+  onboardingStatus String      @default("pending")
+  rating           Float       @default(0)
+  slices           OrderSlice[]
+  users            User[]
+}
+
+model User {
+  id            String    @id @default(cuid())
+  phone         String    @unique
+  passwordHash  String
+  role          String
+  phoneVerified Boolean   @default(false)
+  active        Boolean   @default(true)
+  dailyCap      Int?
+  perOrderCap   Int?
+  retailerId    String?
+  retailer      Retailer? @relation(fields: [retailerId], references: [id])
+  supplierId    String?
+  supplier      Supplier? @relation(fields: [supplierId], references: [id])
+  createdAt     DateTime  @default(now())
+  sessions      Session[]
+
+  @@index([role])
+  @@index([retailerId])
+  @@index([supplierId])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model Product {
@@ -125,7 +154,7 @@ model Event {
   id        String   @id @default(cuid())
   orderId   String?
   type      String
-  payload   String   // JSON-encoded (SQLite has no Json type; Postgres does)
+  payload   String   // JSON-encoded text
   createdAt DateTime @default(now())
 
   @@index([orderId])

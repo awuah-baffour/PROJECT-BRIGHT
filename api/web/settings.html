@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f0f1f6" />
+  <title>Settings | Restock Ghana</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+</head>
+<body data-page="settings" class="app-body">
+  <div class="app-frame">
+    <header class="app-topbar">
+      <a class="brand" href="/home.html"><span class="brand-mark">RG</span><span><strong>Restock Ghana</strong><small>Your shop, in good supply</small></span></a>
+      <nav class="desktop-nav" aria-label="Main navigation"><a href="/home.html" data-nav="home">Home</a><a href="/orders.html" data-nav="orders">Orders</a><a href="/suppliers.html" data-nav="suppliers">Suppliers</a><a href="/profile.html" data-nav="profile">Profile</a></nav>
+      <a class="top-account" href="/profile.html"><span class="avatar" id="homeAvatar">A</span><span id="homeAccountLabel">My account</span></a>
+    </header>
+    <main class="app-main profile-main">
+      <a class="back-link" href="/profile.html">← <span>Back to your profile</span></a>
+      <section class="greeting-row page-greeting"><div><p class="eyebrow">PREFERENCES</p><h1>Workspace settings</h1><p class="muted">Choose where your restock requests are sent.</p></div></section>
+      <section class="profile-card settings-card">
+        <div class="section-heading"><div><p class="eyebrow">DELIVERY DEFAULTS</p><h2>Your connection &amp; location</h2></div></div>
+        <div class="settings-fields"><label>API base URL <small>Leave empty when the app is hosted with your service.</small><input id="baseInput" type="url" placeholder="Same origin" /></label><label>Default delivery location<input id="defaultLocationInput" placeholder="loc_1" /></label></div>
+        <div class="voice-tools"><button id="saveSettingsBtn" class="button button-dark">Save preferences</button><button id="loadIntegrationsBtn" class="button button-light">Check integrations</button></div>
+        <pre id="settingsResult" class="result" aria-live="polite"></pre>
+      </section>
+      <section class="profile-card"><div class="section-heading"><div><p class="eyebrow">SERVICE READINESS</p><h2>Connected services</h2></div></div><p class="muted">We’ll show clearly when a service is ready. Payments, SMS and WhatsApp may require setup.</p><div id="integrationsList" class="product-list"></div></section>
+    </main>
+    <nav class="mobile-nav" aria-label="Shop navigation"><a href="/home.html" data-nav="home"><span>⌂</span>Home</a><a href="/orders.html" data-nav="orders"><span>▤</span>Orders</a><a href="/suppliers.html" data-nav="suppliers"><span>◫</span>Suppliers</a><a href="/profile.html" data-nav="profile"><span>○</span>Profile</a></nav>
+  </div>
+  <div id="toast" class="toast" hidden></div>
+  <script src="/app.js"></script>
+</body>
+</html>

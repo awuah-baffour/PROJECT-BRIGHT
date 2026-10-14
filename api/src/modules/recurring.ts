@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { ah } from "../core/async.js";
 import { getOrder, makeId, saveOrder } from "../store/orders.js";
-import { buildQuote } from "../core/sourcing.js";
+import { buildQuote, loadCatalog } from "../core/sourcing.js";
 import { priceQuote } from "../core/pricing.js";
 import { logEvent } from "../store/events.js";
 import { getRecurring, listRecurring, newRecurringId, saveRecurring } from "../store/recurring.js";
@@ -84,7 +84,7 @@ recurringRouter.post(
     const r = await getRecurring(req.params.id);
     if (!r) return res.status(404).json({ error: "schedule not found" });
     if (r.paused) return res.status(400).json({ error: "schedule paused" });
-    const quote = priceQuote(buildQuote(r.items));
+    const quote = priceQuote(buildQuote(r.items, { catalog: await loadCatalog() }));
     const orderId = makeId("ord");
     await saveOrder({
       id: orderId,
