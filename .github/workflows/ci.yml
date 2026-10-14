@@ -5,15 +5,32 @@ on:
 jobs:
   typecheck:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: bright
+          POSTGRES_PASSWORD: bright
+          POSTGRES_DB: bright
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
-      DATABASE_URL: file:./dev.db
+      DATABASE_URL: postgresql://bright:bright@localhost:5432/bright
+    defaults:
+      run:
+        working-directory: api
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm --prefix api ci
-      - run: npm --prefix api run typecheck
-      - run: npm --prefix api run verify
-      - run: npm --prefix api exec prisma migrate deploy
-      - run: npm --prefix api run smoke && npm --prefix api run smoke
+      - run: npm ci
+      - run: npx prisma migrate deploy --schema=./prisma/schema.prisma
+      - run: npm run typecheck
+      - run: npm run verify
+      - run: npm run smoke && npm run smoke
